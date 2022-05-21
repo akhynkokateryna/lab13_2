@@ -3,10 +3,11 @@ File: linkedbst.py
 Author: Ken Lambert
 """
 
+import random
+import time
 from abstractcollection import AbstractCollection
 from bstnode import BSTNode
 from linkedstack import LinkedStack
-from linkedqueue import LinkedQueue
 from math import log
 
 
@@ -56,13 +57,26 @@ class LinkedBST(AbstractCollection):
         """Supports an inorder traversal on a view of self."""
         lyst = list()
 
-        def recurse(node):
-            if node != None:
-                recurse(node.left)
-                lyst.append(node.data)
-                recurse(node.right)
+        nodes_stack = LinkedStack()
 
-        recurse(self._root)
+        cur_node = self._root
+        while not nodes_stack.isEmpty() or cur_node is not None:
+            if cur_node is not None:
+                nodes_stack.push(cur_node)
+                cur_node = cur_node.left
+            else:
+                cur_node = nodes_stack.pop()
+                lyst.append(cur_node.data)
+                cur_node = cur_node.right
+
+        # def recurse(node):
+        #     if node != None:
+        #         recurse(node.left)
+        #         lyst.append(node.data)
+        #         recurse(node.right)
+
+        # recurse(self._root)
+
         return iter(lyst)
 
     def postorder(self):
@@ -81,17 +95,28 @@ class LinkedBST(AbstractCollection):
         """If item matches an item in self, returns the
         matched item, or None otherwise."""
 
-        def recurse(node):
+        node = self._root
+        while node != item:
             if node is None:
                 return None
-            elif item == node.data:
-                return node.data
-            elif item < node.data:
-                return recurse(node.left)
-            else:
-                return recurse(node.right)
+            elif node.data < item:
+                node = node.right
+            elif node.data > item:
+                node = node.left
+            elif node.data == item:
+                return node
 
-        return recurse(self._root)
+        # def recurse(node):
+        #     if node is None:
+        #         return None
+        #     elif item == node.data:
+        #         return node.data
+        #     elif item < node.data:
+        #         return recurse(node.left)
+        #     else:
+        #         return recurse(node.right)
+
+        # return recurse(self._root)
 
     # Mutator methods
     def clear(self):
@@ -102,29 +127,45 @@ class LinkedBST(AbstractCollection):
     def add(self, item):
         """Adds item to the tree."""
 
-        # Helper function to search for item's position
-        def recurse(node):
-            # New item is less, go left until spot is found
-            if item < node.data:
-                if node.left == None:
-                    node.left = BSTNode(item)
-                else:
-                    recurse(node.left)
-            # New item is greater or equal,
-            # go right until spot is found
-            elif node.right == None:
-                node.right = BSTNode(item)
-            else:
-                recurse(node.right)
-                # End of recurse
-
-        # Tree is empty, so new item goes at the root
         if self.isEmpty():
             self._root = BSTNode(item)
-        # Otherwise, search for the item's spot
         else:
-            recurse(self._root)
-        self._size += 1
+            node = self._root
+            while node is not None:
+                if node.data < item:
+                    if node.right is None:
+                        node.right = BSTNode(item)
+                        break
+                    node = node.right
+                elif node.data > item:
+                    if node.left is None:
+                        node.left = BSTNode(item)
+                        break
+                    node = node.left
+
+        # # Helper function to search for item's position
+        # def recurse(node):
+        #     # New item is less, go left until spot is found
+        #     if item < node.data:
+        #         if node.left == None:
+        #             node.left = BSTNode(item)
+        #         else:
+        #             recurse(node.left)
+        #     # New item is greater or equal,
+        #     # go right until spot is found
+        #     elif node.right == None:
+        #         node.right = BSTNode(item)
+        #     else:
+        #         recurse(node.right)
+        #         # End of recurse
+
+        # # Tree is empty, so new item goes at the root
+        # if self.isEmpty():
+        #     self._root = BSTNode(item)
+        # # Otherwise, search for the item's spot
+        # else:
+        #     recurse(self._root)
+        # self._size += 1
 
     def remove(self, item):
         """Precondition: item is in self.
@@ -323,3 +364,48 @@ class LinkedBST(AbstractCollection):
         :return:
         :rtype:
         """
+        words_list = []
+        with open(path, "r", encoding="utf-8") as file:
+            for word in file:
+                words_list.append(word.rstrip("\n"))
+
+        random_words = random.sample(words_list, 10000)
+
+        #search in list
+        time_mark = time.time()
+        for word in random_words:
+            words_list.index(word)
+        print(f"Time of searching of 10000 words in a sorted list is {time.time()-time_mark}")
+
+        #serach in binary tree (words ordered)
+        tree = LinkedBST()
+        for word in words_list:
+            tree.add(word)
+        time_mark = time.time()
+        for word in random_words:
+            tree.find(word)
+        print(f"Time of searching of 10000 words in ordered binary tree is {time.time()-time_mark}")
+
+        #serach in binary tree (words random)
+        tree = LinkedBST()
+        random.shuffle(words_list)
+        for word in words_list:
+            tree.add(word)
+        time_mark = time.time()
+        for word in random_words:
+            tree.find(word)
+        print(f"Time of searching of 10000 words in unordered binary tree is {time.time()-time_mark}")
+
+        #serach in balanced binary tree (words random)
+        tree = LinkedBST()
+        random.shuffle(words_list)
+        for word in words_list:
+            tree.add(word)
+        tree.rebalance()
+        time_mark = time.time()
+        for word in random_words:
+            tree.find(word)
+        print(f"Time of searching of 10000 words in balanced unordered binary tree is {time.time()-time_mark}")
+
+if __name__=="__main__":
+    LinkedBST().demo_bst("words.txt")
