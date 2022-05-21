@@ -378,33 +378,33 @@ class LinkedBST(AbstractCollection):
         print(f"Time of searching of 10000 words in a sorted list is {time.time()-time_mark}")
 
         #serach in binary tree (words ordered)
-        tree = LinkedBST()
+        tree_ordered = LinkedBST()
         for word in words_list:
-            tree.add(word)
+            tree_ordered.add(word)
         time_mark = time.time()
         for word in random_words:
-            tree.find(word)
+            tree_ordered.find(word)
         print(f"Time of searching of 10000 words in ordered binary tree is {time.time()-time_mark}")
 
         #serach in binary tree (words random)
-        tree = LinkedBST()
+        tree_random = LinkedBST()
         random.shuffle(words_list)
         for word in words_list:
-            tree.add(word)
+            tree_random.add(word)
         time_mark = time.time()
         for word in random_words:
-            tree.find(word)
+            tree_random.find(word)
         print(f"Time of searching of 10000 words in unordered binary tree is {time.time()-time_mark}")
 
         #serach in balanced binary tree (words random)
-        tree = LinkedBST()
+        tree_random_balanced = LinkedBST()
         random.shuffle(words_list)
         for word in words_list:
-            tree.add(word)
-        tree.rebalance()
+            tree_random_balanced.add(word)
+        tree_random_balanced.rebalance()
         time_mark = time.time()
         for word in random_words:
-            tree.find(word)
+            tree_random_balanced.find(word)
         print(f"Time of searching of 10000 words in balanced unordered binary tree is {time.time()-time_mark}")
 
 if __name__=="__main__":
